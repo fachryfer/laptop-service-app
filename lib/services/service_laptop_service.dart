@@ -97,7 +97,7 @@ class ServiceLaptopService {
     try {
       final updates = <String, dynamic>{
         'status': status,
-        'updatedAt': DateTime.now().toIso8601String(),
+        'updatedAt': FieldValue.serverTimestamp(),
       };
 
       if (finalCost != null) {
@@ -108,10 +108,10 @@ class ServiceLaptopService {
         updates['notes'] = notes;
       }
 
-      if (status == 'in_progress') {
-        updates['startedAt'] = DateTime.now().toIso8601String();
+      if (status == 'inProgress') {
+        updates['startedAt'] = FieldValue.serverTimestamp();
       } else if (status == 'completed') {
-        updates['completedAt'] = DateTime.now().toIso8601String();
+        updates['completedAt'] = FieldValue.serverTimestamp();
       }
 
       await _firestore.collection(_collection).doc(id).update(updates);

@@ -4,6 +4,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/service_provider.dart';
 import '../../models/service_model.dart';
 import 'service_detail_screen.dart';
+import 'package:intl/intl.dart';
 
 class ServiceListScreen extends StatelessWidget {
   const ServiceListScreen({super.key});
@@ -41,127 +42,116 @@ class _ServiceListContentState extends State<ServiceListContent> {
     }
   }
 
+  Color _getStatusColor(String status) {
+    switch (status) {
+      case 'pending':
+        return Colors.orange;
+      case 'in_progress':
+        return Colors.blue;
+      case 'completed':
+        return Colors.green;
+      case 'cancelled':
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  IconData _getStatusIcon(String status) {
+    switch (status) {
+      case 'pending':
+        return Icons.hourglass_empty;
+      case 'in_progress':
+        return Icons.build;
+      case 'completed':
+        return Icons.check_circle;
+      case 'cancelled':
+        return Icons.cancel;
+      default:
+        return Icons.all_inbox;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Daftar Layanan'),
-        elevation: 0,
-        backgroundColor: Theme.of(context).primaryColor,
-        actions: [
-          PopupMenuButton<String>(
-            icon: const Icon(Icons.filter_list),
-            tooltip: 'Filter Status',
-            onSelected: (String status) {
-              setState(() {
-                _selectedStatus = status;
-              });
-            },
-            itemBuilder: (BuildContext context) => [
-              const PopupMenuItem(
-                value: 'all',
-                child: Row(
-                  children: [
-                    Icon(Icons.all_inbox, color: Colors.grey),
-                    SizedBox(width: 8),
-                    Text('Semua Status'),
-                  ],
-                ),
-              ),
-              const PopupMenuItem(
-                value: 'pending',
-                child: Row(
-                  children: [
-                    Icon(Icons.hourglass_empty, color: Colors.orange),
-                    SizedBox(width: 8),
-                    Text('Menunggu'),
-                  ],
-                ),
-              ),
-              const PopupMenuItem(
-                value: 'in_progress',
-                child: Row(
-                  children: [
-                    Icon(Icons.build, color: Colors.blue),
-                    SizedBox(width: 8),
-                    Text('Dalam Proses'),
-                  ],
-                ),
-              ),
-              const PopupMenuItem(
-                value: 'completed',
-                child: Row(
-                  children: [
-                    Icon(Icons.check_circle, color: Colors.green),
-                    SizedBox(width: 8),
-                    Text('Selesai'),
-                  ],
-                ),
-              ),
-              const PopupMenuItem(
-                value: 'cancelled',
-                child: Row(
-                  children: [
-                    Icon(Icons.cancel, color: Colors.red),
-                    SizedBox(width: 8),
-                    Text('Dibatalkan'),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
       body: Column(
         children: [
-          if (_selectedStatus != 'all')
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-              color: Colors.grey[100],
-              child: Row(
-                children: [
-                  Icon(
-                    _selectedStatus == 'pending'
-                        ? Icons.hourglass_empty
-                        : _selectedStatus == 'in_progress'
-                            ? Icons.build
-                            : _selectedStatus == 'completed'
-                                ? Icons.check_circle
-                                : Icons.cancel,
-                    color: _selectedStatus == 'pending'
-                        ? Colors.orange
-                        : _selectedStatus == 'in_progress'
-                            ? Colors.blue
-                            : _selectedStatus == 'completed'
-                                ? Colors.green
-                                : Colors.red,
-                    size: 20,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Filter: ${_getStatusText(_selectedStatus)}',
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const Spacer(),
-                  TextButton(
-                    onPressed: () {
-                      setState(() {
-                        _selectedStatus = 'all';
-                      });
-                    },
-                    child: const Text('Reset'),
-                  ),
-                ],
+          Container(
+            padding: const EdgeInsets.fromLTRB(16, 48, 16, 16),
+            decoration: BoxDecoration(
+              color: Theme.of(context).primaryColor,
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(32),
+                bottomRight: Radius.circular(32),
               ),
             ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Daftar Layanan',
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Kelola layanan laptop Anda',
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: Colors.white.withOpacity(0.9),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      _buildStatusChip('all'),
+                      const SizedBox(width: 8),
+                      _buildStatusChip('pending'),
+                      const SizedBox(width: 8),
+                      _buildStatusChip('in_progress'),
+                      const SizedBox(width: 8),
+                      _buildStatusChip('completed'),
+                      const SizedBox(width: 8),
+                      _buildStatusChip('cancelled'),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
           Expanded(
             child: _buildServiceList(),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildStatusChip(String status) {
+    final isSelected = _selectedStatus == status;
+    final color = _getStatusColor(status);
+    final icon = _getStatusIcon(status);
+
+    return FilterChip(
+      selected: isSelected,
+      label: Text(_getStatusText(status)),
+      avatar: Icon(icon, size: 16, color: isSelected ? Colors.white : color),
+      backgroundColor: Colors.white.withOpacity(0.1),
+      selectedColor: color,
+      checkmarkColor: Colors.white,
+      labelStyle: TextStyle(
+        color: isSelected ? Colors.white : color,
+        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+      ),
+      onSelected: (selected) {
+        setState(() {
+          _selectedStatus = selected ? status : 'all';
+        });
+      },
     );
   }
 
@@ -202,22 +192,6 @@ class _ServiceListContentState extends State<ServiceListContent> {
         }
 
         final services = snapshot.data ?? [];
-        if (services.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.inbox, size: 48, color: Colors.grey),
-                const SizedBox(height: 16),
-                const Text(
-                  'Tidak ada data service',
-                  style: TextStyle(fontSize: 16, color: Colors.grey),
-                ),
-              ],
-            ),
-          );
-        }
-
         final filteredServices = _selectedStatus == 'all'
             ? services
             : services.where((service) => service.status == _selectedStatus).toList();
@@ -227,11 +201,18 @@ class _ServiceListContentState extends State<ServiceListContent> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.filter_list, size: 48, color: Colors.grey),
+                Icon(
+                  _getStatusIcon(_selectedStatus),
+                  size: 64,
+                  color: Colors.grey.withOpacity(0.5),
+                ),
                 const SizedBox(height: 16),
-                const Text(
-                  'Tidak ada service dengan status ini',
-                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                Text(
+                  'Tidak ada layanan dengan status ${_getStatusText(_selectedStatus).toLowerCase()}',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: Colors.grey,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
               ],
             ),
@@ -239,134 +220,116 @@ class _ServiceListContentState extends State<ServiceListContent> {
         }
 
         return ListView.builder(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(16),
           itemCount: filteredServices.length,
           itemBuilder: (context, index) {
             final service = filteredServices[index];
-            return ServiceCard(service: service);
+            return Card(
+              margin: const EdgeInsets.only(bottom: 16),
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: InkWell(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ServiceDetailScreen(service: service),
+                    ),
+                  );
+                },
+                borderRadius: BorderRadius.circular(16),
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  service.userName,
+                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    color: Theme.of(context).primaryColor,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '${service.laptopBrand} ${service.laptopModel}',
+                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: _getStatusColor(service.status).withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  _getStatusIcon(service.status),
+                                  size: 16,
+                                  color: _getStatusColor(service.status),
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  _getStatusText(service.status),
+                                  style: TextStyle(
+                                    color: _getStatusColor(service.status),
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        service.problem,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Dibuat: ${DateFormat('dd MMM yyyy').format(service.createdAt)}',
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          if (service.estimatedCost != null)
+                            Text(
+                              'Estimasi: Rp ${NumberFormat('#,###').format(service.estimatedCost)}',
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).primaryColor,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
           },
         );
       },
-    );
-  }
-}
-
-class ServiceCard extends StatelessWidget {
-  final ServiceModel service;
-
-  const ServiceCard({
-    super.key,
-    required this.service,
-  });
-
-  Color _getStatusColor(String status) {
-    switch (status) {
-      case 'pending':
-        return Colors.orange;
-      case 'in_progress':
-        return Colors.blue;
-      case 'completed':
-        return Colors.green;
-      case 'cancelled':
-        return Colors.red;
-      default:
-        return Colors.grey;
-    }
-  }
-
-  String _getStatusText(String status) {
-    switch (status) {
-      case 'pending':
-        return 'Menunggu';
-      case 'in_progress':
-        return 'Dalam Proses';
-      case 'completed':
-        return 'Selesai';
-      case 'cancelled':
-        return 'Dibatalkan';
-      default:
-        return status;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ServiceDetailScreen(service: service),
-            ),
-          );
-        },
-        borderRadius: BorderRadius.circular(12),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: Text(
-                      service.userName,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: _getStatusColor(service.status).withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: _getStatusColor(service.status),
-                        width: 1,
-                      ),
-                    ),
-                    child: Text(
-                      _getStatusText(service.status),
-                      style: TextStyle(
-                        color: _getStatusColor(service.status),
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                '${service.laptopBrand} ${service.laptopModel}',
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.black87,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                service.problem,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.black54,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 } 

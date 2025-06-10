@@ -43,7 +43,14 @@ class _AdminCreateServiceScreenState extends State<AdminCreateServiceScreen> {
       setState(() => _isLoading = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.toString()}')),
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
         );
       }
     }
@@ -64,7 +71,14 @@ class _AdminCreateServiceScreenState extends State<AdminCreateServiceScreen> {
     if (!_formKey.currentState!.validate()) return;
     if (_selectedUser == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Pilih pengguna terlebih dahulu')),
+        SnackBar(
+          content: const Text('Pilih pengguna terlebih dahulu'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
       );
       return;
     }
@@ -86,14 +100,28 @@ class _AdminCreateServiceScreenState extends State<AdminCreateServiceScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Layanan berhasil dibuat')),
+          SnackBar(
+            content: const Text('Layanan berhasil dibuat'),
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
         );
         Navigator.pushReplacementNamed(context, '/home');
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.toString()}')),
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
         );
       }
     } finally {
@@ -106,153 +134,312 @@ class _AdminCreateServiceScreenState extends State<AdminCreateServiceScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Buat Layanan Baru'),
-      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Pemilihan Pengguna
-                    DropdownButtonFormField<UserModel>(
-                      value: _selectedUser,
-                      decoration: const InputDecoration(
-                        labelText: 'Pemilik Laptop',
-                        border: OutlineInputBorder(),
+              child: Column(
+                children: [
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.fromLTRB(16, 48, 16, 16),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor,
+                      borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(32),
+                        bottomRight: Radius.circular(32),
                       ),
-                      items: _users.map((user) {
-                        return DropdownMenuItem(
-                          value: user,
-                          child: Text('${user.fullName} (${user.email})'),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() => _selectedUser = value);
-                      },
-                      validator: (value) {
-                        if (value == null) {
-                          return 'Pilih pemilik laptop';
-                        }
-                        return null;
-                      },
                     ),
-                    const SizedBox(height: 16),
-
-                    // Merek Laptop
-                    TextFormField(
-                      controller: _laptopBrandController,
-                      decoration: const InputDecoration(
-                        labelText: 'Merek Laptop',
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Masukkan merek laptop';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Model Laptop
-                    TextFormField(
-                      controller: _laptopModelController,
-                      decoration: const InputDecoration(
-                        labelText: 'Model Laptop',
-                        border: OutlineInputBorder(),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Masukkan model laptop';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Masalah
-                    TextFormField(
-                      controller: _problemController,
-                      decoration: const InputDecoration(
-                        labelText: 'Masalah',
-                        border: OutlineInputBorder(),
-                      ),
-                      maxLines: 3,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Masukkan masalah laptop';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Estimasi Biaya
-                    TextFormField(
-                      controller: _estimatedCostController,
-                      decoration: const InputDecoration(
-                        labelText: 'Estimasi Biaya',
-                        border: OutlineInputBorder(),
-                        prefixText: 'Rp ',
-                      ),
-                      keyboardType: TextInputType.number,
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Catatan
-                    TextFormField(
-                      controller: _notesController,
-                      decoration: const InputDecoration(
-                        labelText: 'Catatan',
-                        border: OutlineInputBorder(),
-                      ),
-                      maxLines: 3,
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Pilih Gambar
-                    ElevatedButton.icon(
-                      onPressed: _pickImages,
-                      icon: const Icon(Icons.add_photo_alternate),
-                      label: const Text('Pilih Gambar'),
-                    ),
-                    if (_selectedImages.isNotEmpty) ...[
-                      const SizedBox(height: 8),
-                      SizedBox(
-                        height: 100,
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: _selectedImages.length,
-                          itemBuilder: (context, index) {
-                            return Padding(
-                              padding: const EdgeInsets.only(right: 8),
-                              child: Image.file(
-                                File(_selectedImages[index]),
-                                height: 100,
-                                width: 100,
-                                fit: BoxFit.cover,
-                              ),
-                            );
-                          },
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Buat Layanan Baru',
+                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                    ],
-                    const SizedBox(height: 24),
-
-                    // Tombol Submit
-                    ElevatedButton(
-                      onPressed: _isLoading ? null : _submitForm,
-                      child: _isLoading
-                          ? const CircularProgressIndicator()
-                          : const Text('Buat Layanan'),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Buat layanan baru untuk pengguna',
+                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            color: Colors.white.withOpacity(0.9),
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Card(
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(24),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Informasi Pengguna',
+                                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 24),
+                                  DropdownButtonFormField<UserModel>(
+                                    value: _selectedUser,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Pemilik Laptop',
+                                      prefixIcon: Icon(Icons.person_outline),
+                                    ),
+                                    items: _users.map((user) {
+                                      return DropdownMenuItem(
+                                        value: user,
+                                        child: SizedBox(
+                                          width: MediaQuery.of(context).size.width * 0.5,
+                                          child: Text(
+                                            '${user.fullName} (${user.email})',
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      );
+                                    }).toList(),
+                                    onChanged: (value) {
+                                      setState(() => _selectedUser = value);
+                                    },
+                                    validator: (value) {
+                                      if (value == null) {
+                                        return 'Pilih pemilik laptop';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Card(
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(24),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Informasi Laptop',
+                                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 24),
+                                  TextFormField(
+                                    controller: _laptopBrandController,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Merek Laptop',
+                                      prefixIcon: Icon(Icons.computer_outlined),
+                                    ),
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Masukkan merek laptop';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                  const SizedBox(height: 16),
+                                  TextFormField(
+                                    controller: _laptopModelController,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Model Laptop',
+                                      prefixIcon: Icon(Icons.laptop_outlined),
+                                    ),
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Masukkan model laptop';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Card(
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(24),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Detail Masalah',
+                                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 24),
+                                  TextFormField(
+                                    controller: _problemController,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Masalah',
+                                      prefixIcon: Icon(Icons.bug_report_outlined),
+                                      alignLabelWithHint: true,
+                                    ),
+                                    maxLines: 3,
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Masukkan masalah laptop';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                  const SizedBox(height: 16),
+                                  TextFormField(
+                                    controller: _estimatedCostController,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Estimasi Biaya',
+                                      prefixIcon: Icon(Icons.attach_money_outlined),
+                                    ),
+                                    keyboardType: TextInputType.number,
+                                    validator: (value) {
+                                      if (value == null || value.isEmpty) {
+                                        return 'Masukkan estimasi biaya';
+                                      }
+                                      if (double.tryParse(value) == null) {
+                                        return 'Masukkan angka yang valid';
+                                      }
+                                      return null;
+                                    },
+                                  ),
+                                  const SizedBox(height: 16),
+                                  TextFormField(
+                                    controller: _notesController,
+                                    decoration: const InputDecoration(
+                                      labelText: 'Catatan Tambahan',
+                                      prefixIcon: Icon(Icons.note_outlined),
+                                      alignLabelWithHint: true,
+                                    ),
+                                    maxLines: 3,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Card(
+                            elevation: 2,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(24),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Foto Laptop',
+                                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 24),
+                                  if (_selectedImages.isNotEmpty)
+                                    SizedBox(
+                                      height: 100,
+                                      child: ListView.builder(
+                                        scrollDirection: Axis.horizontal,
+                                        itemCount: _selectedImages.length,
+                                        itemBuilder: (context, index) {
+                                          return Padding(
+                                            padding: const EdgeInsets.only(right: 8),
+                                            child: Stack(
+                                              children: [
+                                                ClipRRect(
+                                                  borderRadius: BorderRadius.circular(8),
+                                                  child: Image.file(
+                                                    File(_selectedImages[index]),
+                                                    width: 100,
+                                                    height: 100,
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                                ),
+                                                Positioned(
+                                                  top: 4,
+                                                  right: 4,
+                                                  child: Container(
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.black.withOpacity(0.5),
+                                                      shape: BoxShape.circle,
+                                                    ),
+                                                    child: IconButton(
+                                                      icon: const Icon(
+                                                        Icons.close,
+                                                        color: Colors.white,
+                                                        size: 20,
+                                                      ),
+                                                      onPressed: () {
+                                                        setState(() {
+                                                          _selectedImages.removeAt(index);
+                                                        });
+                                                      },
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  const SizedBox(height: 16),
+                                  ElevatedButton.icon(
+                                    onPressed: _pickImages,
+                                    icon: const Icon(Icons.add_photo_alternate_outlined),
+                                    label: const Text('Pilih Foto'),
+                                    style: ElevatedButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(vertical: 16),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          ElevatedButton(
+                            onPressed: _isLoading ? null : _submitForm,
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                            ),
+                            child: _isLoading
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                    ),
+                                  )
+                                : const Text('Buat Layanan'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
     );

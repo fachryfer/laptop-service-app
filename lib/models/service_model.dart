@@ -18,6 +18,8 @@ class ServiceModel {
   final DateTime? startedAt;
   final DateTime? completedAt;
   final String? notes;
+  final double? rating;
+  final String? comment;
 
   ServiceModel({
     required this.id,
@@ -36,6 +38,8 @@ class ServiceModel {
     this.startedAt,
     this.completedAt,
     this.notes,
+    this.rating,
+    this.comment,
   });
 
   Map<String, dynamic> toMap() {
@@ -51,11 +55,13 @@ class ServiceModel {
       'estimatedCost': estimatedCost,
       'finalCost': finalCost,
       'images': images,
-      'createdAt': createdAt.toIso8601String(),
-      'updatedAt': updatedAt.toIso8601String(),
-      'startedAt': startedAt?.toIso8601String(),
-      'completedAt': completedAt?.toIso8601String(),
+      'createdAt': Timestamp.fromDate(createdAt),
+      'updatedAt': Timestamp.fromDate(updatedAt),
+      'startedAt': startedAt != null ? Timestamp.fromDate(startedAt!) : null,
+      'completedAt': completedAt != null ? Timestamp.fromDate(completedAt!) : null,
       'notes': notes,
+      'rating': rating,
+      'comment': comment,
     };
   }
 
@@ -74,19 +80,13 @@ class ServiceModel {
       estimatedCost: (map['estimatedCost'] as num?)?.toDouble(),
       finalCost: (map['finalCost'] as num?)?.toDouble(),
       images: List<String>.from(map['images'] ?? []),
-      createdAt: map['createdAt'] != null
-          ? DateTime.parse(map['createdAt'])
-          : DateTime.now(),
-      updatedAt: map['updatedAt'] != null
-          ? DateTime.parse(map['updatedAt'])
-          : DateTime.now(),
-      startedAt: map['startedAt'] != null
-          ? DateTime.parse(map['startedAt'])
-          : null,
-      completedAt: map['completedAt'] != null
-          ? DateTime.parse(map['completedAt'])
-          : null,
+      createdAt: (map['createdAt'] as Timestamp).toDate(),
+      updatedAt: (map['updatedAt'] as Timestamp).toDate(),
+      startedAt: (map['startedAt'] as Timestamp?)?.toDate(),
+      completedAt: (map['completedAt'] as Timestamp?)?.toDate(),
       notes: map['notes'],
+      rating: map['rating']?.toDouble(),
+      comment: map['comment'],
     );
   }
 
@@ -107,6 +107,8 @@ class ServiceModel {
     DateTime? startedAt,
     DateTime? completedAt,
     String? notes,
+    double? rating,
+    String? comment,
   }) {
     return ServiceModel(
       id: id ?? this.id,
@@ -125,6 +127,8 @@ class ServiceModel {
       startedAt: startedAt ?? this.startedAt,
       completedAt: completedAt ?? this.completedAt,
       notes: notes ?? this.notes,
+      rating: rating ?? this.rating,
+      comment: comment ?? this.comment,
     );
   }
 } 

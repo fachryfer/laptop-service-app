@@ -2,10 +2,12 @@ import 'package:flutter/foundation.dart';
 import '../models/service_model.dart';
 import '../services/service_laptop_service.dart';
 import '../services/cloudinary_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ServiceProvider with ChangeNotifier {
   final ServiceLaptopService _service = ServiceLaptopService();
   final CloudinaryService _cloudinaryService = CloudinaryService();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   List<ServiceModel> _services = [];
   List<ServiceModel> _userServices = [];
   bool _isLoading = false;
@@ -15,6 +17,28 @@ class ServiceProvider with ChangeNotifier {
   List<ServiceModel> get userServices => _userServices;
   bool get isLoading => _isLoading;
   String? get error => _error;
+
+  Future<void> _loadServices() async {
+    try {
+      _isLoading = true;
+      _error = null;
+      notifyListeners();
+
+      final snapshot = await _firestore.collection('services').get();
+      _services = snapshot.docs.map((doc) {
+        final data = doc.data();
+        data['id'] = doc.id;
+        return ServiceModel.fromMap(data);
+      }).toList();
+
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _isLoading = false;
+      _error = e.toString();
+      notifyListeners();
+    }
+  }
 
   // Mendapatkan semua layanan (untuk admin)
   Stream<List<ServiceModel>> getAllServices() {
@@ -113,6 +137,20 @@ class ServiceProvider with ChangeNotifier {
       _isLoading = false;
       _error = e.toString();
       notifyListeners();
+      rethrow;
+    }
+  }
+
+  Future<void> updateServiceRating(String serviceId, double rating, String comment) async {
+    try {
+      final serviceRef = _firestore.collection('services').doc(serviceId);
+      await serviceRef.update({
+        'rating': rating,
+        'comment': comment,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+      await _loadServices();
+    } catch (e) {
       rethrow;
     }
   }

@@ -39,27 +39,32 @@ class _HomeScreenState extends State<HomeScreen> {
     ];
 
     final List<NavigationDestination> userDestinations = [
-      const NavigationDestination(
-        icon: Icon(Icons.list),
+      NavigationDestination(
+        icon: const Icon(Icons.list_outlined),
+        selectedIcon: const Icon(Icons.list),
         label: 'Layanan',
       ),
-      const NavigationDestination(
-        icon: Icon(Icons.person),
+      NavigationDestination(
+        icon: const Icon(Icons.person_outline),
+        selectedIcon: const Icon(Icons.person),
         label: 'Profil',
       ),
     ];
 
     final List<NavigationDestination> adminDestinations = [
-      const NavigationDestination(
-        icon: Icon(Icons.list),
+      NavigationDestination(
+        icon: const Icon(Icons.list_outlined),
+        selectedIcon: const Icon(Icons.list),
         label: 'Layanan',
       ),
-      const NavigationDestination(
-        icon: Icon(Icons.add_circle_outline),
+      NavigationDestination(
+        icon: const Icon(Icons.add_circle_outline),
+        selectedIcon: const Icon(Icons.add_circle),
         label: 'Buat Layanan',
       ),
-      const NavigationDestination(
-        icon: Icon(Icons.person),
+      NavigationDestination(
+        icon: const Icon(Icons.person_outline),
+        selectedIcon: const Icon(Icons.person),
         label: 'Profil',
       ),
     ];
@@ -84,6 +89,12 @@ class _HomeScreenState extends State<HomeScreen> {
           });
         },
         destinations: currentDestinations,
+        backgroundColor: Colors.white,
+        elevation: 8,
+        shadowColor: Colors.black.withOpacity(0.1),
+        height: 65,
+        labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
+        animationDuration: const Duration(milliseconds: 500),
       ),
     );
   }
